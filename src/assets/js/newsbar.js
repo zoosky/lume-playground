@@ -1,64 +1,41 @@
-(function () {
-    const STORAGE_KEY = 'newsbar-state';
+const STORAGE_KEY = 'newsbar-state';
+const EXPIRY_DAYS = 7;
 
-    function initializeNewsbar() {
-        console.log('Initializing newsbar...');
+function shouldShowNewsbar() {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return true;
 
-        const state = localStorage.getItem(STORAGE_KEY);
-        console.log('Current localStorage state:', state);
+    const state = JSON.parse(stored);
+    const newsbarElement = document.querySelector('.newsbar');
 
-        const newsbarElement = document.querySelector('.newsbar');
-        console.log('Newsbar element:', newsbarElement);
+    // Check if newsbarElement exists before accessing its properties
+    if (!newsbarElement) {
+        console.warn("Warning: No element with class 'newsbar' found. Assuming newsbar should be shown.");
+        return true; // Or return false if you don't want to show in this case
+    }
 
-        const currentVersion = parseInt(newsbarElement.dataset.version);
-        console.log('Current version:', currentVersion);
+    const currentVersion = parseInt(newsbarElement.dataset.version);
+    if (isNaN(currentVersion)) {
+        console.warn("Warning: dataset.version was not an integer. Assuming it was 0.");
+        currentVersion = 0;
+    }
+    // Show if version changed or 7 days passed
+    const isExpired = Date.now() - state.dismissedAt > EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+    const isNewVersion = currentVersion > state.version;
 
-        if (state) {
-            const parsedState = JSON.parse(state);
-            console.log('Parsed state:', parsedState);
+    return isExpired || isNewVersion;
+}
 
-            const { dismissedAt, version } = parsedState;
-            const storedVersion = parseInt(version);
-
-            const expired = Date.now() - dismissedAt > getExpiryDays() * 24 * 60 * 60 * 1000;
-
-            console.log({
-                storedVersion,
-                currentVersion,
-                dismissedAt: new Date(dismissedAt),
-                expired,
-                showNewbar: !dismissedAt || currentVersion > storedVersion || expired
-            });
-
-            if (!dismissedAt || currentVersion > storedVersion || expired) {
-                console.log('Showing newsbar...');
-                document.documentElement.classList.add('show-newsbar');
-            }
-        } else {
-            console.log('No stored state, showing newsbar...');
-            document.documentElement.classList.add('show-newsbar');
+// Example of how you might call it (ensure it's after the HTML loads)
+window.addEventListener('DOMContentLoaded', (event) => {
+    if (shouldShowNewsbar()) {
+        const newsbar = document.querySelector('.newsbar');
+        if (newsbar) {
+            newsbar.classList.add('show-newsbar'); //or whatever you need to do to make the element visible
         }
     }
+});
 
-    function getExpiryDays() {
-        return parseInt(document.querySelector('.newsbar').dataset.expiry) || 7;
-    }
+// Example of how to set up dataset.version in html
 
-    globalThis.closeNewsbar = function () {
-        console.log('Closing newsbar...');
-        document.documentElement.classList.remove('show-newsbar');
-        const version = document.querySelector('.newsbar').dataset.version;
-        const newState = {
-            dismissedAt: Date.now(),
-            version: parseInt(version)
-        };
-        console.log('Storing new state:', newState);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
-    };
-
-    if (document.querySelector('.newsbar')) {
-        initializeNewsbar();
-    } else {
-        console.log('No newsbar element found');
-    }
-})();
+// <div class="newsbar" data-version="1">Newsbar Content</div>
