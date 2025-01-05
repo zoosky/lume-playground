@@ -1,7 +1,7 @@
 {{ if site.newsbar.enabled }}
 <div class="newsbar" 
      data-version="{{ site.newsbar.version }}" 
-     data-expiry="{{ site.newsbar.expiryDays }}">
+     data-expiry="{{ site.newsbar.expiryDays || 7 }}">
   <div class="newsbar-content">
     <p class="newsbar-message">{{ site.newsbar.message }}</p>
     <a href="{{ site.newsbar.ctaLink }}" class="newsbar-cta">{{ site.newsbar.ctaText }}</a>
