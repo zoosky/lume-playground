@@ -1,64 +1,40 @@
 (function () {
     const STORAGE_KEY = 'newsbar-state';
+    const EXPIRY_DAYS = 7;
 
-    function initializeNewsbar() {
-        console.log('Initializing newsbar...');
+    function shouldShowNewsbar() {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return true;
 
-        const state = localStorage.getItem(STORAGE_KEY);
-        console.log('Current localStorage state:', state);
-
+        const state = JSON.parse(stored);
         const newsbarElement = document.querySelector('.newsbar');
-        console.log('Newsbar element:', newsbarElement);
-
+        if (!newsbarElement) return false;  // Safety check
+        
         const currentVersion = parseInt(newsbarElement.dataset.version);
-        console.log('Current version:', currentVersion);
-
-        if (state) {
-            const parsedState = JSON.parse(state);
-            console.log('Parsed state:', parsedState);
-
-            const { dismissedAt, version } = parsedState;
-            const storedVersion = parseInt(version);
-
-            const expired = Date.now() - dismissedAt > getExpiryDays() * 24 * 60 * 60 * 1000;
-
-            console.log({
-                storedVersion,
-                currentVersion,
-                dismissedAt: new Date(dismissedAt),
-                expired,
-                showNewbar: !dismissedAt || currentVersion > storedVersion || expired
-            });
-
-            if (!dismissedAt || currentVersion > storedVersion || expired) {
-                console.log('Showing newsbar...');
-                document.documentElement.classList.add('show-newsbar');
-            }
-        } else {
-            console.log('No stored state, showing newsbar...');
-            document.documentElement.classList.add('show-newsbar');
-        }
-    }
-
-    function getExpiryDays() {
-        return parseInt(document.querySelector('.newsbar').dataset.expiry) || 7;
+        
+        // Show if version changed or 7 days passed
+        const isExpired = Date.now() - state.dismissedAt > EXPIRY_DAYS * 24 * 60 * 60 * 1000;
+        const isNewVersion = currentVersion > state.version;
+        
+        return isExpired || isNewVersion;
     }
 
     globalThis.closeNewsbar = function () {
-        console.log('Closing newsbar...');
-        document.documentElement.classList.remove('show-newsbar');
-        const version = document.querySelector('.newsbar').dataset.version;
-        const newState = {
+        const newsbarElement = document.querySelector('.newsbar');
+        const version = parseInt(newsbarElement.dataset.version);
+        
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
             dismissedAt: Date.now(),
-            version: parseInt(version)
-        };
-        console.log('Storing new state:', newState);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(newState));
+            version: version
+        }));
+        
+        document.documentElement.classList.remove('show-newsbar');
     };
 
-    if (document.querySelector('.newsbar')) {
-        initializeNewsbar();
-    } else {
-        console.log('No newsbar element found');
-    }
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        if (shouldShowNewsbar()) {
+            document.documentElement.classList.add('show-newsbar');
+        }
+    });
 })();

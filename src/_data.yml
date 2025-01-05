@@ -4,5 +4,5 @@ site:
     message: "🔔 Important: Free consultation slots available for January!"
     ctaText: "Book Now"
     ctaLink: "#contact"
-    version: 5  # Increment to force show new messages
+    version: 6  # Increment to force show new messages
     expiryDays: 7
