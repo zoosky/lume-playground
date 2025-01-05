@@ -1,0 +1,8 @@
+site:
+  newsbar:
+    enabled: true
+    message: "🔔 Important: Free consultation slots available for January!"
+    ctaText: "Book Now"
+    ctaLink: "#contact"
+    version: 3  # Increment to force show new messages
+    expiryDays: 7

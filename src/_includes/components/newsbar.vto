@@ -1,0 +1,21 @@
+{{ if site.newsbar.enabled }}
+<div class="newsbar" 
+     data-version="{{ site.newsbar.version }}" 
+     data-expiry="{{ site.newsbar.expiryDays }}">
+  <div class="newsbar-content">
+    <p class="newsbar-message">{{ site.newsbar.message }}</p>
+    <a href="{{ site.newsbar.ctaLink }}" class="newsbar-cta">{{ site.newsbar.ctaText }}</a>
+  </div>
+  <button type="button" class="newsbar-close" onclick="closeNewsbar()" aria-label="Close">
+    &times;
+  </button>
+</div>
+{{ /if }}
+
+
+<script>
+console.log('Newsbar data:', {
+  version: {{ site.newsbar.version }},
+  enabled: {{ site.newsbar.enabled }}
+});
+</script>

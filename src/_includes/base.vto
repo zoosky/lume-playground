@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="{{ site.lang || 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} - {{ site.title }}</title>
+    
+    <!-- Add newsbar styles before other styles to prevent FOUC -->
+    <link rel="stylesheet" href="/assets/css/newsbar.css">
+    <link rel="stylesheet" href="/assets/css/main.css">
+    <link rel="stylesheet" href="/assets/css/navigation.css">
+    
+    <!-- Add newsbar script in head for immediate execution -->
+    <script src="/assets/js/newsbar.js"></script>
+</head>
+<body>
+    {{ include "components/newsbar.vto" }}
+    {{ include "components/navigation.vto" }}
+    
+    <main>
+        {{ content }}
+    </main>
+
+
+    
+    <!-- Other scripts -->
+</body>
+</html>
